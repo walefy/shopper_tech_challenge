@@ -8,13 +8,16 @@ import { ErrorCode } from '../enums/ErrorCode';
 import type { MeasureBodyUpload } from '../types/MeasureBodyUpload';
 import type { ServiceResponse } from '../types/ServiceResponse';
 import type { MeasureUploadSuccess } from '../types/MeasureUploadSuccess';
+import type { ImageService } from './ImageService';
 
 export class MeasureService {
   private geminiService: GeminiService;
   private meterModel: MeterModel;
   private customerModel: CustomerModel;
+  private imageService: ImageService;
 
   constructor(
+    imageService: ImageService,
     geminiService = new GeminiService(),
     meterModel = new MeterModel(),
     customerModel = new CustomerModel(),
@@ -22,6 +25,7 @@ export class MeasureService {
     this.geminiService = geminiService;
     this.meterModel = meterModel;
     this.customerModel = customerModel;
+    this.imageService = imageService;
   }
 
   public async upload(data: MeasureBodyUpload): Promise<ServiceResponse<MeasureUploadSuccess>> {
@@ -69,16 +73,27 @@ export class MeasureService {
 
     const meter = await this.meterModel.create({
       customerId: data.customer_code,
-      image: data.image,
       metering: meteringValue.payload.value,
       meteringType: data.measure_type,
       timestamp: data.measure_datetime
     });
 
+    const putImageResponse = await this.imageService.putImage(data.image);
+
+    if (!putImageResponse.ok) {
+      return {
+        status: HttpStatus.INTERNAL,
+        payload: {
+          error_code: ErrorCode.UPLOAD_IMAGE_ERROR,
+          error_description: putImageResponse.payload.error_description
+        },
+      };
+    }
+
     return {
       status: HttpStatus.SUCCESS,
       payload: {
-        imageUrl: meteringValue.payload.image_uri,
+        imageUrl: putImageResponse.payload.url,
         measureUuid: meter.id,
         measureValue: meter.metering
       }

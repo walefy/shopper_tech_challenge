@@ -4,7 +4,7 @@ import { MeasureService } from '../service/MeasureService';
 export class MeasureController {
   private service: MeasureService;
 
-  constructor(service = new MeasureService) {
+  constructor(service: MeasureService) {
     this.service = service;
   }
 

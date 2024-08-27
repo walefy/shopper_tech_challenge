@@ -26,7 +26,6 @@ model Customer {
 model Meter {
   id           String       @id @default(cuid())
   customerId   String
-  image        String       @db.Text // a base64 encoded image (temporary)
   metering     Float
   meteringType MeteringType
   timestamp    DateTime

@@ -16,7 +16,6 @@ export class GeminiService {
     }
 
     this.prompt = fs.readFileSync(path.join('assets', 'prompt_v2.txt')).toString();
-
     this.genAi = new GoogleGenerativeAI(GEMINI_API_KEY);
     this.model = this.genAi.getGenerativeModel({ model: 'gemini-1.5-pro' });
   }
@@ -31,7 +30,7 @@ export class GeminiService {
       const text = generativeAIResponse.response.text();
       console.log(text);
       const value = this.extractNumericValue(text)
-      return { ok: true, payload: { value, image_uri: '' }};
+      return { ok: true, payload: { value }};
     } catch (e) {
       console.log(e);
       return { ok: false, payload: { error_description: 'an error occurred in gemini, try again.' } };

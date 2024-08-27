@@ -1,19 +1,22 @@
 import express from 'express';
 import cors from 'cors';
 import { mainRoute } from './routes/mainRoute';
+import type { BucketConfig } from './config/BucketConfig';
 
 export class App {
   public app: express.Express;
+  private bucketConfig: BucketConfig;
 
-  constructor() {
+  constructor(bucketConfig: BucketConfig) {
     this.app = express();
+    this.bucketConfig = bucketConfig;
     this.config();
     this.routes();
   }
   
   private routes(): void {
     this.app.get('/', (_req, res) => res.json({ ok: true }));
-    this.app.use(mainRoute);
+    this.app.use(mainRoute(this.bucketConfig.s3));
   }
   
   private config(): void {
