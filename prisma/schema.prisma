@@ -25,11 +25,11 @@ model Customer {
 
 model Meter {
   id           String       @id @default(cuid())
-  userId       String
+  customerId   String
   image        String // a base64 encoded image (temporary)
   metering     Float
   meteringType MeteringType
-  timestamp    DateTime     @default(now())
+  timestamp    DateTime
 
-  User Customer @relation(fields: [userId], references: [id])
+  User Customer @relation(fields: [customerId], references: [id])
 }

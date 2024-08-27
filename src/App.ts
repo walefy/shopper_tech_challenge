@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import { mainRoute } from './routes/mainRoute';
 
 export class App {
   public app: express.Express;
@@ -12,6 +13,7 @@ export class App {
   
   private routes(): void {
     this.app.get('/', (_req, res) => res.json({ ok: true }));
+    this.app.use(mainRoute);
   }
   
   private config(): void {
