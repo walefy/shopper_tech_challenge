@@ -1,0 +1,35 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum MeteringType {
+  WATER
+  GAS
+}
+
+model Customer {
+  id     String  @id
+  meters Meter[]
+}
+
+model Meter {
+  id           String       @id @default(cuid())
+  userId       String
+  image        String // a base64 encoded image (temporary)
+  metering     Float
+  meteringType MeteringType
+  timestamp    DateTime     @default(now())
+
+  User Customer @relation(fields: [userId], references: [id])
+}

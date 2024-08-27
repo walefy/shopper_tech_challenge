@@ -3,18 +3,21 @@
   "module": "./src/server.ts",
   "type": "module",
   "scripts": {
+    "predev": "bunx prisma db push",
     "dev": "bun --watch ./src/server.ts",
     "start": "bun ./src/server.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21"
+    "@types/express": "^4.17.21",
+    "prisma": "^5.18.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@prisma/client": "^5.18.0",
     "cors": "^2.8.5",
     "express": "^4.19.2"
   }

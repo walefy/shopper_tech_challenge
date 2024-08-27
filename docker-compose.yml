@@ -19,11 +19,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - MYSQL_HOST=db
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=password
-      - MYSQL_DATABASE=shopper_db
-
+      - DATABASE_URL=mysql://root:password@database:3306/shopper_db
     volumes:
       - .:/app
     depends_on:
