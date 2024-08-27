@@ -12,7 +12,6 @@ export class GeminiService {
   private prompt: string;
 
   constructor() {
-    console.warn('[WARN] class not implemented');
     const { GEMINI_API_KEY } = process.env;
 
     if (!GEMINI_API_KEY) {
