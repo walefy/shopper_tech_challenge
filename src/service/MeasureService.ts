@@ -1,5 +1,7 @@
 import { HttpStatus } from '../enums/HttpStatus';
 import { GeminiService } from './GeminiService';
+import { validateSchema } from '../utils/schemaValidator';
+import { measureCreationSchema } from '../schemas/measureCreationSchema';
 import type { MeasureBodyUpload } from '../types/MeasureBodyUpload';
 import type { ServiceResponse } from '../types/ServiceResponse';
 import { MeterModel } from '../model/MeterModel';
@@ -14,6 +16,15 @@ export class MeasureService {
   }
 
   public async upload(data: MeasureBodyUpload): Promise<ServiceResponse<string>> {
+    const dataValidation = validateSchema(measureCreationSchema, data);
+
+    if (!dataValidation.valid) {
+      return {
+        status: HttpStatus.BAD_REQUEST,
+        payload: { message: dataValidation.error || 'Invalid data' },
+      };
+    }
+
     const meteringValue = this.geminiService.interpretImage(data.image);
 
     const meter = await this.meterModel.create({
