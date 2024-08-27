@@ -70,7 +70,7 @@ export class MeasureService {
     const meter = await this.meterModel.create({
       customerId: data.customer_code,
       image: data.image,
-      metering: meteringValue.payload,
+      metering: meteringValue.payload.value,
       meteringType: data.measure_type,
       timestamp: data.measure_datetime
     });
@@ -78,7 +78,7 @@ export class MeasureService {
     return {
       status: HttpStatus.SUCCESS,
       payload: {
-        imageUrl: 'not implemented',
+        imageUrl: meteringValue.payload.image_uri,
         measureUuid: meter.id,
         measureValue: meter.metering
       }
