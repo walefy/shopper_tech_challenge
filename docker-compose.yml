@@ -1,0 +1,31 @@
+services:
+  database:
+    image: mysql:8.0.32
+    container_name: db
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=shopper_db
+    restart: 'always'
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 10s
+      retries: 5
+
+  api:
+    build: .
+    container_name: shopper_backend
+    ports:
+      - "3000:3000"
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=shopper_db
+
+    volumes:
+      - .:/app
+    depends_on:
+      database:
+        condition: service_healthy
