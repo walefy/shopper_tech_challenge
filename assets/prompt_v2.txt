@@ -1,0 +1,13 @@
+Analyze this image of a gas or water meter. The meter may be analog or digital. Follow these steps to ensure the most accurate reading:
+
+1. **Identify the Type of Meter**: Determine if the meter is analog or digital.
+2. **Analog Meter Reading**:
+  - **Dial Analysis**: Carefully read each dial, considering the direction and precise position of the pointer.
+  - **Boundary Cases**: Pay special attention to pointers that are between numbers or very close to a boundary. If the pointer is between two numbers, use the lower number unless the pointer has clearly passed the higher number.
+  - **Direction of Rotation**: Note the direction of rotation for each dial, as it may differ.
+  - **Avoid Overestimation**: Ensure not to overestimate the reading if the pointer hasn't fully reached a number.
+3. **Digital Meter Reading**:
+  - **Clear Digits**: Ensure all digits are clearly read and transcribed accurately.
+4. **Return Format**: Return only the numeric reading as a single string of digits, without any additional characters or spaces.
+
+Ensure the reading is as accurate as possible, considering all the nuances of the meter type and pointer positions and return just the final value with digits.

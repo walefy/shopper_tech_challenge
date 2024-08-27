@@ -17,9 +17,12 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.17.1",
     "@prisma/client": "^5.18.0",
+    "@types/tmp": "^0.2.6",
     "cors": "^2.8.5",
     "express": "^4.19.2",
+    "tmp": "^0.2.3",
     "zod": "^3.23.8"
   }
 }

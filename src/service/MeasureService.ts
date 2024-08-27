@@ -60,10 +60,17 @@ export class MeasureService {
 
     const meteringValue = await this.geminiService.interpretImage(data.image);
 
+    if (!meteringValue.ok) {
+      return {
+        status: HttpStatus.INTERNAL,
+        payload: { error_code: ErrorCode.GEMINI_ERROR, error_description: meteringValue.payload.error_description },
+      };
+    }
+
     const meter = await this.meterModel.create({
       customerId: data.customer_code,
       image: data.image,
-      metering: meteringValue,
+      metering: meteringValue.payload,
       meteringType: data.measure_type,
       timestamp: data.measure_datetime
     });

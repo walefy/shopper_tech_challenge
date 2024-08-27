@@ -1,0 +1,1 @@
+Analyze the image of a gas or water meter. The meter may be analog or digital. Return the numeric reading as a single string of digits.
