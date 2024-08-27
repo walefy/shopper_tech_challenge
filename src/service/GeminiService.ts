@@ -3,7 +3,7 @@ export class GeminiService {
     console.warn('[WARN] class not implemented');
   }
 
-  public interpretImage(imageBase64: string): number {
+  public async  interpretImage(imageBase64: string): Promise<number> {
     console.log('[WARN] method not implemented');
     return 0;
   }

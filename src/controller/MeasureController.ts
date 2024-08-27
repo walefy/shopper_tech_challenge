@@ -14,7 +14,7 @@ export class MeasureController {
     const response = await this.service.upload({
       image,
       customer_code,
-      measure_datetime,
+      measure_datetime: new Date(measure_datetime),
       measure_type
     });
 
