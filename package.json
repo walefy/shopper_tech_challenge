@@ -3,7 +3,7 @@
   "module": "./src/server.ts",
   "type": "module",
   "scripts": {
-    "predev": "bunx prisma db push",
+    "predev": "bunx prisma migrate deploy",
     "dev": "bun --watch ./src/server.ts",
     "start": "bun ./src/server.ts"
   },
