@@ -5,7 +5,11 @@
   "scripts": {
     "predev": "bunx prisma migrate deploy",
     "dev": "bun --watch ./src/server.ts",
-    "start": "bun ./src/server.ts"
+    "start": "bun ./src/server.ts",
+    "pretest:local": "DATABASE_URL=mysql://root:password@localhost:3306/shopper_db bunx prisma migrate deploy",
+    "pretest:docker": "DATABASE_URL=mysql://root:password@database:3306/shopper_db bunx prisma migrate deploy",
+    "test:local": "APP_PORT=3000 DATABASE_URL=mysql://root:password@localhost:3306/shopper_db bun test",
+    "test:docker": "APP_PORT=3000 DATABASE_URL=mysql://root:password@database:3306/shopper_db bun test"
   },
   "devDependencies": {
     "@types/bun": "latest",
