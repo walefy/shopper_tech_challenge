@@ -148,9 +148,6 @@ describe('Integration test from Measure', () => {
   });
 
   test('Test if /confirm returns not found when receive a confirmation of uncreated measure', async () => {
-    stubImageInterpret({ ok: true, payload: { value: 25 } })
-    stubImageUpload({ ok: true, payload: { url: 'http://test.com' } });
-
     const confirmData = {
       measure_uuid: 'not_found_measure',
       confirmed_value: 200
@@ -166,5 +163,33 @@ describe('Integration test from Measure', () => {
     expect(response.body).toHaveProperty('error_description');
     expect(response.body.error_code).toBe('MEASURE_NOT_FOUND');
     expect(response.body.error_description).toBe('Leitura não encontrada');
+  });
+
+  test('Test if /customer_code/list returns all measures of this customer', async () => {
+    stubImageInterpret({ ok: true, payload: { value: 25 } })
+    stubImageUpload({ ok: true, payload: { url: 'http://test.com' } });
+
+    // TODO: change awaits to Promise.All when fix race condition. 
+    const measures = [
+      await createMeasure('1', 'GAS', new Date(1, 1, 2024)),
+      await createMeasure('1', 'GAS', new Date(1, 2, 2024)),
+      await createMeasure('1', 'GAS', new Date(1, 3, 2024)),
+      await createMeasure('1', 'WATER', new Date(1, 1, 2024)),
+      await createMeasure('1', 'WATER', new Date(1, 2, 2024)),
+      await createMeasure('1', 'WATER', new Date(1, 3, 2024)),
+    ];
+
+    const response = await request(app)
+      .get('/1/list')
+      .send();
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('customer_code');
+    expect(response.body.customer_code).toBe('1');
+    expect(response.body).toHaveProperty('measures');
+    expect(response.body.measures).toBeArray();
+    expect(response.body.measures).toHaveLength(measures.length);
+    expect(response.body.measures.filter((measure: any) => measure.measure_type === 'GAS')).toHaveLength(3);
+    expect(response.body.measures.filter((measure: any) => measure.measure_type === 'WATER')).toHaveLength(3);
   });
 });
