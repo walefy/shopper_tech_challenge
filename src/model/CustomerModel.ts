@@ -1,5 +1,5 @@
 import type { CustomerCreation } from '../types/CustomerCreation';
-import type { CustomerWithMeters } from '../types/CustomerWithMeters';
+import type { CustomerWithMeasure } from '../types/CustomerWithMeasure';
 import { type Customer, Prisma, PrismaClient } from '@prisma/client';
 import type { DefaultArgs } from '@prisma/client/runtime/library';
 
@@ -16,16 +16,16 @@ export class CustomerModel {
     return this.customer.create({ data });
   }
 
-  public async findById(id: string): Promise<CustomerWithMeters | null> {
-    return this.customer.findUnique({ where: { id }, include: { meters: true } });
+  public async findById(customerCode: string): Promise<CustomerWithMeasure | null> {
+    return this.customer.findUnique({ where: { customerCode }, include: { measures: true } });
   }
 
-  public async findByIdOrCreate(id: string): Promise<CustomerWithMeters> {
-    const costumer = await this.findById(id);
+  public async findByIdOrCreate(customerCode: string): Promise<CustomerWithMeasure> {
+    const costumer = await this.findById(customerCode);
 
     if (!costumer) {
-      await this.create({ id });
-      return await this.findById(id) as CustomerWithMeters
+      await this.create({ customerCode });
+      return await this.findById(customerCode) as CustomerWithMeasure
     }
     return costumer;
   }

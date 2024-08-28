@@ -1,4 +1,4 @@
-export type UpdateMeterValueBody = {
+export type UpdateMeasureValueBody = {
   measureUuid: string;
   confirmedValue: number;
 };

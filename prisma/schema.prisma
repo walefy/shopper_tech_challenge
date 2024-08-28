@@ -13,24 +13,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum MeteringType {
+enum MeasureType {
   WATER
   GAS
 }
 
 model Customer {
-  id     String  @id
-  meters Meter[]
+  customerCode String    @id
+  measures     Measure[]
 }
 
-model Meter {
-  id           String       @id @default(cuid())
-  customerId   String
-  imageUrl     String
-  metering     Float
-  confirmed    Boolean      @default(false)
-  meteringType MeteringType
-  timestamp    DateTime
-
-  User Customer @relation(fields: [customerId], references: [id])
+model Measure {
+  measureUuid     String      @id @default(cuid())
+  customerCode    String
+  imageUrl        String
+  measureValue    Float
+  hasConfirmed    Boolean     @default(false)
+  measureType     MeasureType
+  measureDatetime DateTime
+  customer        Customer    @relation(fields: [customerCode], references: [customerCode])
 }

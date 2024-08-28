@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { MeasureService } from '../service/MeasureService';
 import { camelToSnake } from '../utils/camelToSnake';
+import type { MeasureType } from '@prisma/client';
 
 export class MeasureController {
   private service: MeasureService;
@@ -27,14 +28,23 @@ export class MeasureController {
     return res.status(response.status).json(camelToSnake(response.payload));
   }
 
-  public async updateMeterValue(req: Request, res: Response) {
+  public async updateMeasureValue(req: Request, res: Response): Promise<Response> {
     const {
       measure_uuid: measureUuid,
       confirmed_value: confirmedValue
     } = req.body;
 
-    const response = await this.service.updateMeterValue({ measureUuid, confirmedValue });
+    const response = await this.service.updateMeasureValue({ measureUuid, confirmedValue });
 
     return res.status(response.status).json(camelToSnake(response.payload));
+  }
+
+  public async findByCustomerCode(req: Request, res: Response): Promise<Response> {
+    const { customerCode } = req.params;
+    const { measure_type: measureType } = req.query;
+
+    const response = await this.service.findByCustomerCode(customerCode, measureType as MeasureType);
+
+    return res.status(response.status).json(camelToSnake(response.payload))
   }
 }

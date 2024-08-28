@@ -1,32 +1,34 @@
 import { HttpStatus } from '../enums/HttpStatus';
 import { GeminiService } from './GeminiService';
 import { validateSchema } from '../utils/schemaValidator';
-import { updateMeterValueSchema } from '../schemas/updateMeterValueSchema';
+import { updateMeasureValueSchema } from '../schemas/updateMeasureValueSchema';
 import { measureCreationSchema } from '../schemas/measureCreationSchema';
-import { MeterModel } from '../model/MeterModel';
+import { MeasureModel } from '../model/MeasureModel';
 import { CustomerModel } from '../model/CustomerModel';
 import { ErrorCode } from '../enums/ErrorCode';
 import type { MeasureBodyUpload } from '../types/MeasureBodyUpload';
 import type { ServiceResponse } from '../types/ServiceResponse';
 import type { MeasureUploadSuccess } from '../types/MeasureUploadSuccess';
 import type { ImageService } from './ImageService';
-import type { UpdateMeterValueBody } from '../types/UpdateMeterValueBody';
-import type { UpdateMeterValueSuccess } from '../types/UpdateMeterValueSuccess';
+import type { UpdateMeasureValueBody } from '../types/UpdateMeasureValueBody';
+import type { UpdateMeasureValueSuccess } from '../types/UpdateMeasureValueSuccess';
+import { MeasureType } from '@prisma/client';
+import type { CustomerWithMeasure } from '../types/CustomerWithMeasure';
 
 export class MeasureService {
   private geminiService: GeminiService;
-  private meterModel: MeterModel;
+  private measureModel: MeasureModel;
   private customerModel: CustomerModel;
   private imageService: ImageService;
 
   constructor(
     imageService: ImageService,
     geminiService = new GeminiService(),
-    meterModel = new MeterModel(),
+    measureModel = new MeasureModel(),
     customerModel = new CustomerModel(),
   ) {
     this.geminiService = geminiService;
-    this.meterModel = meterModel;
+    this.measureModel = measureModel;
     this.customerModel = customerModel;
     this.imageService = imageService;
   }
@@ -47,13 +49,13 @@ export class MeasureService {
     }
 
     const customer = await this.customerModel.findByIdOrCreate(data.customerCode);
-    const meterInThisMonth = await this.meterModel.findByCustomerIdAndMonth(
-      customer.id,
+    const measureInThisMonth = await this.measureModel.findByCustomerIdAndMonth(
+      customer.customerCode,
       data.measureDatetime,
       data.measureType
     );
 
-    if (meterInThisMonth) {
+    if (measureInThisMonth) {
       const payload = {
         errorCode: ErrorCode.DOUBLE_REPORT,
         errorDescription: 'Leitura do mês já realizada',
@@ -65,12 +67,12 @@ export class MeasureService {
       };
     }
 
-    const meteringValue = await this.geminiService.interpretImage(data.image);
+    const measureValue = await this.geminiService.interpretImage(data.image);
 
-    if (!meteringValue.ok) {
+    if (!measureValue.ok) {
       return {
         status: HttpStatus.INTERNAL,
-        payload: { errorCode: ErrorCode.GEMINI_ERROR, errorDescription: meteringValue.payload.errorDescription },
+        payload: { errorCode: ErrorCode.GEMINI_ERROR, errorDescription: measureValue.payload.errorDescription },
       };
     }
 
@@ -86,27 +88,26 @@ export class MeasureService {
       };
     }
 
-    const meter = await this.meterModel.create({
-      customerId: data.customerCode,
-      metering: meteringValue.payload.value,
-      meteringType: data.measureType,
-      confirmed: false,
+    const measure = await this.measureModel.create({
+      customerCode: data.customerCode,
+      measureValue: measureValue.payload.value,
+      measureType: data.measureType,
       imageUrl: putImageResponse.payload.url,
-      timestamp: data.measureDatetime
+      measureDatetime: data.measureDatetime
     });
 
     return {
       status: HttpStatus.SUCCESS,
       payload: {
         imageUrl: putImageResponse.payload.url,
-        measureUuid: meter.id,
-        measureValue: meter.metering
+        measureUuid: measure.measureUuid,
+        measureValue: measure.measureValue
       }
     };
   }
 
-  public async updateMeterValue(data: UpdateMeterValueBody): Promise<ServiceResponse<UpdateMeterValueSuccess>> {
-    const dataValidation = validateSchema(updateMeterValueSchema, data);
+  public async updateMeasureValue(data: UpdateMeasureValueBody): Promise<ServiceResponse<UpdateMeasureValueSuccess>> {
+    const dataValidation = validateSchema(updateMeasureValueSchema, data);
 
     if (!dataValidation.valid) {
       const payload = {
@@ -120,9 +121,9 @@ export class MeasureService {
       };
     }
 
-    const meter = await this.meterModel.findById(data.measureUuid);
+    const measure = await this.measureModel.findById(data.measureUuid);
 
-    if (!meter) {
+    if (!measure) {
       const payload = {
         errorCode: ErrorCode.MEASURE_NOT_FOUND,
         errorDescription: 'Leitura não encontrada',
@@ -131,7 +132,7 @@ export class MeasureService {
       return { status: HttpStatus.NOT_FOUND, payload };
     }
 
-    if (meter.confirmed) {
+    if (measure.hasConfirmed) {
       const payload = {
         errorCode: ErrorCode.CONFIRMATION_DUPLICATE,
         errorDescription: 'Leitura já confirmada',
@@ -140,8 +141,24 @@ export class MeasureService {
       return { status: HttpStatus.CONFLICT, payload };
     }
 
-    await this.meterModel.updateMeterValue(data.measureUuid, data.confirmedValue);
+    await this.measureModel.updateMeasureValue(data.measureUuid, data.confirmedValue);
 
     return { status: HttpStatus.SUCCESS, payload: { success: true } };
+  }
+
+  public async findByCustomerCode(customerCode: string, measureType: MeasureType): Promise<ServiceResponse<CustomerWithMeasure>> {
+    if (measureType && !['water', 'gas'].includes(measureType.toLocaleLowerCase())) {
+      const payload = {
+        errorCode: ErrorCode.INVALID_TYPE,
+        errorDescription: 'Tipo de medição não permitida',
+      };
+
+      return { status: HttpStatus.BAD_REQUEST, payload };
+    }
+
+    const measureTypeUpper = measureType !== undefined ? measureType.toUpperCase() : measureType;
+    const measures = await this.measureModel.findByCustomerCode(customerCode, measureTypeUpper);
+
+    return { status: HttpStatus.SUCCESS, payload: { customerCode: customerCode, measures } }
   }
 }

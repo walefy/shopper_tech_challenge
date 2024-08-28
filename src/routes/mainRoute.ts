@@ -11,7 +11,8 @@ export const mainRoute = (s3: S3) => {
   const measureController = new MeasureController(measureService);
   
   router.post('/upload', (req, res) => measureController.upload(req, res));
-  router.patch('/confirm', (req, res) => measureController.updateMeterValue(req, res));
+  router.patch('/confirm', (req, res) => measureController.updateMeasureValue(req, res));
+  router.get('/:customerCode/list', (req, res) => measureController.findByCustomerCode(req, res));
 
   return router;
 };

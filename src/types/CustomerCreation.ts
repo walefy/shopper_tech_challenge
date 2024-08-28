@@ -1,3 +1,3 @@
 export type CustomerCreation = {
-  id: string;
+  customerCode: string;
 };
