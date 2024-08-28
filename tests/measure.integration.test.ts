@@ -248,4 +248,19 @@ describe('Integration test from Measure', () => {
     expect(response.body.measures.filter((measure: any) => measure.measure_type === 'GAS')).toHaveLength(3);
     expect(response.body.measures.filter((measure: any) => measure.measure_type === 'WATER')).toHaveLength(0);
   });
+
+  test('Test if /customer_code/list returns not found when the search result is zero', async () => {
+    stubImageInterpret({ ok: true, payload: { value: 25 } })
+    stubImageUpload({ ok: true, payload: { url: 'http://test.com' } });
+
+    const response = await request(app)
+      .get('/1/list?measure_type=gas')
+      .send();
+    
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty('error_code');
+    expect(response.body).toHaveProperty('error_description');
+    expect(response.body.error_code).toBe('MEASURE_NOT_FOUND');
+    expect(response.body.error_description).toBe('Nenhuma leitura encontrada');
+  });
 });
