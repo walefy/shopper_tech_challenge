@@ -159,6 +159,15 @@ export class MeasureService {
     const measureTypeUpper = measureType !== undefined ? measureType.toUpperCase() : measureType;
     const measures = await this.measureModel.findByCustomerCode(customerCode, measureTypeUpper);
 
+    if (measures.length === 0) {
+      const payload = {
+        errorCode: ErrorCode.MEASURE_NOT_FOUND,
+        errorDescription: 'Nenhuma leitura encontrada',
+      };
+
+      return { status: HttpStatus.NOT_FOUND, payload };
+    }
+
     return { status: HttpStatus.SUCCESS, payload: { customerCode: customerCode, measures } }
   }
 }
