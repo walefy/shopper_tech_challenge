@@ -26,6 +26,7 @@ model Customer {
 model Meter {
   id           String       @id @default(cuid())
   customerId   String
+  imageUrl     String
   metering     Float
   meteringType MeteringType
   timestamp    DateTime

@@ -28,7 +28,6 @@ export class GeminiService {
       ]);
   
       const text = generativeAIResponse.response.text();
-      console.log(text);
       const value = this.extractNumericValue(text)
       return { ok: true, payload: { value }};
     } catch (e) {

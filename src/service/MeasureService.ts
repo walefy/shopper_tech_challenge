@@ -71,13 +71,6 @@ export class MeasureService {
       };
     }
 
-    const meter = await this.meterModel.create({
-      customerId: data.customer_code,
-      metering: meteringValue.payload.value,
-      meteringType: data.measure_type,
-      timestamp: data.measure_datetime
-    });
-
     const putImageResponse = await this.imageService.putImage(data.image);
 
     if (!putImageResponse.ok) {
@@ -89,6 +82,14 @@ export class MeasureService {
         },
       };
     }
+
+    const meter = await this.meterModel.create({
+      customerId: data.customer_code,
+      metering: meteringValue.payload.value,
+      meteringType: data.measure_type,
+      imageUrl: putImageResponse.payload.url,
+      timestamp: data.measure_datetime
+    });
 
     return {
       status: HttpStatus.SUCCESS,
