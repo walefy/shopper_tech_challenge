@@ -7,5 +7,6 @@ const bucketConfig = new BucketConfig();
 await bucketConfig.config();
 
 const app = new App(bucketConfig);
+export const appExpress = app.app;
 
 app.start(PORT);
