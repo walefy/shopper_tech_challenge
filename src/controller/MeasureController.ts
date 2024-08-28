@@ -9,13 +9,18 @@ export class MeasureController {
   }
 
   public async upload(req: Request, res: Response): Promise<Response> {
-    const { image, customer_code, measure_datetime, measure_type } = req.body;
+    const {
+      image,
+      customer_code: customerCode,
+      measure_datetime: measureDatetime,
+      measure_type: measureType,
+    } = req.body;
 
     const response = await this.service.upload({
       image,
-      customer_code,
-      measure_datetime: new Date(measure_datetime),
-      measure_type
+      customerCode,
+      measureDatetime: new Date(measureDatetime),
+      measureType
     });
 
     return res.status(response.status).json(response.payload);

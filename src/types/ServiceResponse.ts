@@ -2,8 +2,8 @@ import { HttpStatus } from '../enums/HttpStatus';
 import { ErrorCode } from '../enums/ErrorCode.ts';
 
 export type PayloadErr = {
-  error_code: typeof ErrorCode[keyof typeof ErrorCode];
-  error_description: string;
+  errorCode: typeof ErrorCode[keyof typeof ErrorCode];
+  errorDescription: string;
 };
 
 export type ServiceResponse<T> = {

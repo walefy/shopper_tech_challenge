@@ -28,7 +28,7 @@ export class ImageService {
       return { ok: true, payload: { url } }
     } catch (e) {
       console.log(e);
-      return { ok: false, payload: { error_description: 'image cant be uploaded!' } }
+      return { ok: false, payload: { errorDescription: 'image cant be uploaded!' } }
     }
   }
 }

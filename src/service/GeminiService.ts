@@ -32,7 +32,7 @@ export class GeminiService {
       return { ok: true, payload: { value }};
     } catch (e) {
       console.log(e);
-      return { ok: false, payload: { error_description: 'an error occurred in gemini, try again.' } };
+      return { ok: false, payload: { errorDescription: 'an error occurred in gemini, try again.' } };
     }
   }
 

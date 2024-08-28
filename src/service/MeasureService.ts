@@ -33,8 +33,8 @@ export class MeasureService {
 
     if (!dataValidation.valid) {
       const payload = {
-        error_code: ErrorCode.INVALID_DATA,
-        error_description: dataValidation.error || 'Invalid data'
+        errorCode: ErrorCode.INVALID_DATA,
+        errorDescription: dataValidation.error || 'Invalid data'
       }; 
 
       return {
@@ -43,17 +43,17 @@ export class MeasureService {
       };
     }
 
-    const customer = await this.customerModel.findByIdOrCreate(data.customer_code);
+    const customer = await this.customerModel.findByIdOrCreate(data.customerCode);
     const meterInThisMonth = await this.meterModel.findByCustomerIdAndMonth(
       customer.id,
-      data.measure_datetime,
-      data.measure_type
+      data.measureDatetime,
+      data.measureType
     );
 
     if (meterInThisMonth) {
       const payload = {
-        error_code: ErrorCode.DOUBLE_REPORT,
-        error_description: 'Leitura do mês já realizada'
+        errorCode: ErrorCode.DOUBLE_REPORT,
+        errorDescription: 'Leitura do mês já realizada'
       }; 
 
       return {
@@ -67,7 +67,7 @@ export class MeasureService {
     if (!meteringValue.ok) {
       return {
         status: HttpStatus.INTERNAL,
-        payload: { error_code: ErrorCode.GEMINI_ERROR, error_description: meteringValue.payload.error_description },
+        payload: { errorCode: ErrorCode.GEMINI_ERROR, errorDescription: meteringValue.payload.errorDescription },
       };
     }
 
@@ -77,18 +77,18 @@ export class MeasureService {
       return {
         status: HttpStatus.INTERNAL,
         payload: {
-          error_code: ErrorCode.UPLOAD_IMAGE_ERROR,
-          error_description: putImageResponse.payload.error_description
+          errorCode: ErrorCode.UPLOAD_IMAGE_ERROR,
+          errorDescription: putImageResponse.payload.errorDescription
         },
       };
     }
 
     const meter = await this.meterModel.create({
-      customerId: data.customer_code,
+      customerId: data.customerCode,
       metering: meteringValue.payload.value,
-      meteringType: data.measure_type,
+      meteringType: data.measureType,
       imageUrl: putImageResponse.payload.url,
-      timestamp: data.measure_datetime
+      timestamp: data.measureDatetime
     });
 
     return {
