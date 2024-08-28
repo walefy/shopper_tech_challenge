@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { MeasureService } from '../service/MeasureService';
+import { camelToSnake } from '../utils/camelToSnake';
 
 export class MeasureController {
   private service: MeasureService;
@@ -23,6 +24,6 @@ export class MeasureController {
       measureType
     });
 
-    return res.status(response.status).json(response.payload);
+    return res.status(response.status).json(camelToSnake(response.payload));
   }
 }
