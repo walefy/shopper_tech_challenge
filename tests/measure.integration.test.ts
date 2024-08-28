@@ -192,4 +192,60 @@ describe('Integration test from Measure', () => {
     expect(response.body.measures.filter((measure: any) => measure.measure_type === 'GAS')).toHaveLength(3);
     expect(response.body.measures.filter((measure: any) => measure.measure_type === 'WATER')).toHaveLength(3);
   });
+
+  test('Test if /customer_code/list returns all measures of type water', async () => {
+    stubImageInterpret({ ok: true, payload: { value: 25 } })
+    stubImageUpload({ ok: true, payload: { url: 'http://test.com' } });
+
+    // TODO: change awaits to Promise.All when fix race condition. 
+    const measures = [
+      await createMeasure('1', 'GAS', new Date(1, 1, 2024)),
+      await createMeasure('1', 'GAS', new Date(1, 2, 2024)),
+      await createMeasure('1', 'GAS', new Date(1, 3, 2024)),
+      await createMeasure('1', 'WATER', new Date(1, 1, 2024)),
+      await createMeasure('1', 'WATER', new Date(1, 2, 2024)),
+      await createMeasure('1', 'WATER', new Date(1, 3, 2024)),
+    ];
+
+    const response = await request(app)
+      .get('/1/list?measure_type=water')
+      .send();
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('customer_code');
+    expect(response.body.customer_code).toBe('1');
+    expect(response.body).toHaveProperty('measures');
+    expect(response.body.measures).toBeArray();
+    expect(response.body.measures).toHaveLength(measures.length - 3);
+    expect(response.body.measures.filter((measure: any) => measure.measure_type === 'GAS')).toHaveLength(0);
+    expect(response.body.measures.filter((measure: any) => measure.measure_type === 'WATER')).toHaveLength(3);
+  });
+
+  test('Test if /customer_code/list returns all measures of type gas', async () => {
+    stubImageInterpret({ ok: true, payload: { value: 25 } })
+    stubImageUpload({ ok: true, payload: { url: 'http://test.com' } });
+
+    // TODO: change awaits to Promise.All when fix race condition. 
+    const measures = [
+      await createMeasure('1', 'GAS', new Date(1, 1, 2024)),
+      await createMeasure('1', 'GAS', new Date(1, 2, 2024)),
+      await createMeasure('1', 'GAS', new Date(1, 3, 2024)),
+      await createMeasure('1', 'WATER', new Date(1, 1, 2024)),
+      await createMeasure('1', 'WATER', new Date(1, 2, 2024)),
+      await createMeasure('1', 'WATER', new Date(1, 3, 2024)),
+    ];
+
+    const response = await request(app)
+      .get('/1/list?measure_type=gas')
+      .send();
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('customer_code');
+    expect(response.body.customer_code).toBe('1');
+    expect(response.body).toHaveProperty('measures');
+    expect(response.body.measures).toBeArray();
+    expect(response.body.measures).toHaveLength(measures.length - 3);
+    expect(response.body.measures.filter((measure: any) => measure.measure_type === 'GAS')).toHaveLength(3);
+    expect(response.body.measures.filter((measure: any) => measure.measure_type === 'WATER')).toHaveLength(0);
+  });
 });
