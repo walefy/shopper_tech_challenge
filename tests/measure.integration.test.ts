@@ -146,4 +146,25 @@ describe('Integration test from Measure', () => {
     expect(response.body.error_code).toBe('CONFIRMATION_DUPLICATE');
     expect(response.body.error_description).toBe('Leitura já confirmada');
   });
+
+  test('Test if /confirm returns not found when receive a confirmation of uncreated measure', async () => {
+    stubImageInterpret({ ok: true, payload: { value: 25 } })
+    stubImageUpload({ ok: true, payload: { url: 'http://test.com' } });
+
+    const confirmData = {
+      measure_uuid: 'not_found_measure',
+      confirmed_value: 200
+    };
+    
+    const response = await request(app)
+      .patch('/confirm')
+      .send(confirmData)
+      .set('Accept', 'application/json');
+    
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty('error_code');
+    expect(response.body).toHaveProperty('error_description');
+    expect(response.body.error_code).toBe('MEASURE_NOT_FOUND');
+    expect(response.body.error_description).toBe('Leitura não encontrada');
+  });
 });
