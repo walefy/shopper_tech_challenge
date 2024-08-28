@@ -50,6 +50,10 @@ Depois basta rodar os testes:
 bun run test:docker
 ```
 
+## Alertas
+
+Ao receber o erro ```GEMINI_ERROR``` é provável que seja instabilidade nos serviços do gemini, as vezes dura alguns segundos, mas pode levar minutos até estabilizar.
+
 ## Tecnologias utilizadas
 
 - Express: pra uma aplicação altamente customizável e simples
