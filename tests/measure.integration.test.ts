@@ -118,4 +118,32 @@ describe('Integration test from Measure', () => {
     expect(response.body).toHaveProperty('success');
     expect(response.body.success).toBe(true);
   });
+
+  test('Test if /confirm returns conflict when receive confirm to measure already confirmed', async () => {
+    stubImageInterpret({ ok: true, payload: { value: 25 } })
+    stubImageUpload({ ok: true, payload: { url: 'http://test.com' } });
+
+    const postResponse = await createMeasure('2256', 'WATER', new Date());
+
+    const confirmData = {
+      measure_uuid: postResponse.body.measure_uuid,
+      confirmed_value: 200
+    };
+
+    await request(app)
+      .patch('/confirm')
+      .send(confirmData)
+      .set('Accept', 'application/json');
+    
+    const response = await request(app)
+      .patch('/confirm')
+      .send(confirmData)
+      .set('Accept', 'application/json');
+    
+    expect(response.status).toBe(409);
+    expect(response.body).toHaveProperty('error_code');
+    expect(response.body).toHaveProperty('error_description');
+    expect(response.body.error_code).toBe('CONFIRMATION_DUPLICATE');
+    expect(response.body.error_description).toBe('Leitura já confirmada');
+  });
 });
