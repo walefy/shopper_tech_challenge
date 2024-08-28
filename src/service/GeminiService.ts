@@ -17,7 +17,7 @@ export class GeminiService {
 
     this.prompt = fs.readFileSync(path.join('assets', 'prompt_v2.txt')).toString();
     this.genAi = new GoogleGenerativeAI(GEMINI_API_KEY);
-    this.model = this.genAi.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    this.model = this.genAi.getGenerativeModel({ model: 'gemini-1.5-flash' });
   }
 
   public async interpretImage(imageBase64: string): Promise<GeminiInterpretImageResponse> {
