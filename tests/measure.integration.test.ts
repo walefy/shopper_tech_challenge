@@ -271,7 +271,7 @@ describe('Integration test from Measure', () => {
     const response = await request(app)
       .get('/1/list?measure_type=NOT_VALID')
       .send();
-    
+
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty('error_code');
     expect(response.body).toHaveProperty('error_description');

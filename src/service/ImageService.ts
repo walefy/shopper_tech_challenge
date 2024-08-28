@@ -4,7 +4,7 @@ import type { PutImageResponse } from '../types/PutImageResponse';
 
 export class ImageService {
   private s3: S3;
-  private BUCKET_ADDRESS = process.env.BUCKET_ADDRESS;
+  private BUCKET_ADDRESS = process.env.EXTERN_BUCKET_ADDRESS;
 
   constructor(s3: S3) {
     this.s3 = s3;
