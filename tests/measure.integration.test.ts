@@ -16,10 +16,9 @@ describe('Integration test from Measure', () => {
     await restoreDb();
   });
 
-  const stubImageUpload = () => {
+  const stubImageUpload = (payload: PutImageResponse) => {
     const putImageStub = sandbox.stub(ImageService.prototype, 'putImage');
-    const putImageResponse: PutImageResponse = { ok: true, payload: { url: 'http://test.com' } };
-    putImageStub.returns(new Promise((res, rej) => res(putImageResponse)));
+    putImageStub.returns(new Promise((res, rej) => res(payload)));
   };
 
   const stubImageInterpret = (payload: GeminiInterpretImageResponse) => {
@@ -30,7 +29,7 @@ describe('Integration test from Measure', () => {
 
   test('Test that /upload works correctly with the correct data', async () => {  
     stubImageInterpret({ ok: true, payload: { value: 25 } })
-    stubImageUpload();
+    stubImageUpload({ ok: true, payload: { url: 'http://test.com' } });
 
     const measure_datetime = new Date();
     
@@ -56,7 +55,7 @@ describe('Integration test from Measure', () => {
 
   test('Test if /upload returns conflict when send the same measure two times', async () => {
     stubImageInterpret({ ok: true, payload: { value: 25 } });
-    stubImageUpload();
+    stubImageUpload({ ok: true, payload: { url: 'http://test.com' } });
 
     const data = {
       image: '',
@@ -84,7 +83,7 @@ describe('Integration test from Measure', () => {
 
   test('Test if /upload handle correctly the gemini error', async () => {
     stubImageInterpret({ ok: false, payload: { errorDescription: 'an error occurred in gemini, try again.' } });
-    stubImageUpload();
+    stubImageUpload({ ok: true, payload: { url: 'http://test.com' } });
 
     const data = {
       image: '',
@@ -103,5 +102,28 @@ describe('Integration test from Measure', () => {
     expect(response.body).toHaveProperty('error_description');
     expect(response.body.error_code).toBe('GEMINI_ERROR');
     expect(response.body.error_description).toBe('an error occurred in gemini, try again.');
+  });
+
+  test('Test if /upload handle correctly the minio error', async () => {
+    stubImageInterpret({ ok: true, payload: { value: 25 } });
+    stubImageUpload({ ok: false, payload: { errorDescription: 'image cant be uploaded!' } });
+
+    const data = {
+      image: '',
+      customer_code: '2',
+      measure_type: 'GAS',
+      measure_datetime: new Date(),
+    };
+
+    const response = await request(app)
+    .post('/upload')
+    .send(data)
+    .set('Accept', 'application/json');
+
+    expect(response.status).toBe(500);
+    expect(response.body).toHaveProperty('error_code');
+    expect(response.body).toHaveProperty('error_description');
+    expect(response.body.error_code).toBe('UPLOAD_IMAGE_ERROR');
+    expect(response.body.error_description).toBe('image cant be uploaded!');
   });
 });
