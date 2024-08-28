@@ -81,4 +81,27 @@ describe('Integration test from Measure', () => {
     expect(response.body.error_code).toBe('DOUBLE_REPORT');
     expect(response.body.error_description).toBe('Leitura do mês já realizada');
   });
+
+  test('Test if /upload handle correctly the gemini error', async () => {
+    stubImageInterpret({ ok: false, payload: { errorDescription: 'an error occurred in gemini, try again.' } });
+    stubImageUpload();
+
+    const data = {
+      image: '',
+      customer_code: '2',
+      measure_type: 'GAS',
+      measure_datetime: new Date(),
+    };
+
+    const response = await request(app)
+    .post('/upload')
+    .send(data)
+    .set('Accept', 'application/json');
+
+    expect(response.status).toBe(500);
+    expect(response.body).toHaveProperty('error_code');
+    expect(response.body).toHaveProperty('error_description');
+    expect(response.body.error_code).toBe('GEMINI_ERROR');
+    expect(response.body.error_description).toBe('an error occurred in gemini, try again.');
+  });
 });
