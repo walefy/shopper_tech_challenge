@@ -22,13 +22,13 @@ export class GeminiService {
 
   public async interpretImage(imageBase64: string): Promise<GeminiInterpretImageResponse> {
     try {
-      // const generativeAIResponse = await this.model.generateContent([
-      //   {inlineData: { data: imageBase64, mimeType: 'image/jpeg' }},
-      //   { text: this.prompt }
-      // ]);
+      const generativeAIResponse = await this.model.generateContent([
+        {inlineData: { data: imageBase64, mimeType: 'image/jpeg' }},
+        { text: this.prompt }
+      ]);
   
-      // const text = generativeAIResponse.response.text();
-      const value = this.extractNumericValue('320')
+      const text = generativeAIResponse.response.text();
+      const value = this.extractNumericValue(text)
       return { ok: true, payload: { value }};
     } catch (e) {
       console.log(e);
