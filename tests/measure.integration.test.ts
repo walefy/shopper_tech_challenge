@@ -263,4 +263,19 @@ describe('Integration test from Measure', () => {
     expect(response.body.error_code).toBe('MEASURE_NOT_FOUND');
     expect(response.body.error_description).toBe('Nenhuma leitura encontrada');
   });
+
+  test('Test if /customer_code/list returns an error when measure type is not valid', async () => {
+    stubImageInterpret({ ok: true, payload: { value: 25 } })
+    stubImageUpload({ ok: true, payload: { url: 'http://test.com' } });
+
+    const response = await request(app)
+      .get('/1/list?measure_type=NOT_VALID')
+      .send();
+    
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error_code');
+    expect(response.body).toHaveProperty('error_description');
+    expect(response.body.error_code).toBe('INVALID_TYPE');
+    expect(response.body.error_description).toBe('Tipo de medição não permitida');
+  });
 });
