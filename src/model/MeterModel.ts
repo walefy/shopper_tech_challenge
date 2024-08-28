@@ -36,4 +36,14 @@ export class MeterModel {
       }
     });
   }
+
+  public async findById(id: string): Promise<Meter | null> {
+    return this.meter.findUnique({ where: { id } });
+  }
+
+  public async updateMeterValue(meterId: string, newValue: number): Promise<Meter> {
+    return this.meter.update({
+      where: { id: meterId },
+      data: { metering: newValue, confirmed: true } });
+  }
 }

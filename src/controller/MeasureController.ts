@@ -26,4 +26,15 @@ export class MeasureController {
 
     return res.status(response.status).json(camelToSnake(response.payload));
   }
+
+  public async updateMeterValue(req: Request, res: Response) {
+    const {
+      measure_uuid: measureUuid,
+      confirmed_value: confirmedValue
+    } = req.body;
+
+    const response = await this.service.updateMeterValue({ measureUuid, confirmedValue });
+
+    return res.status(response.status).json(camelToSnake(response.payload));
+  }
 }

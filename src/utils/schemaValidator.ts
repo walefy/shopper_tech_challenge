@@ -5,7 +5,7 @@ type ValidationResult = {
   error: string | null;
 };
 
-export const validateSchema = (schema: ZodSchema<any>, data: any): ValidationResult => {
+export const validateSchema = (schema: ZodSchema<any>, data: unknown): ValidationResult => {
   try {
     schema.parse(data);
     return { valid: true, error: null };

@@ -28,6 +28,7 @@ model Meter {
   customerId   String
   imageUrl     String
   metering     Float
+  confirmed    Boolean      @default(false)
   meteringType MeteringType
   timestamp    DateTime
 

@@ -1,6 +1,7 @@
 import { HttpStatus } from '../enums/HttpStatus';
 import { GeminiService } from './GeminiService';
 import { validateSchema } from '../utils/schemaValidator';
+import { updateMeterValueSchema } from '../schemas/updateMeterValueSchema';
 import { measureCreationSchema } from '../schemas/measureCreationSchema';
 import { MeterModel } from '../model/MeterModel';
 import { CustomerModel } from '../model/CustomerModel';
@@ -9,6 +10,8 @@ import type { MeasureBodyUpload } from '../types/MeasureBodyUpload';
 import type { ServiceResponse } from '../types/ServiceResponse';
 import type { MeasureUploadSuccess } from '../types/MeasureUploadSuccess';
 import type { ImageService } from './ImageService';
+import type { UpdateMeterValueBody } from '../types/UpdateMeterValueBody';
+import type { UpdateMeterValueSuccess } from '../types/UpdateMeterValueSuccess';
 
 export class MeasureService {
   private geminiService: GeminiService;
@@ -34,7 +37,7 @@ export class MeasureService {
     if (!dataValidation.valid) {
       const payload = {
         errorCode: ErrorCode.INVALID_DATA,
-        errorDescription: dataValidation.error || 'Invalid data'
+        errorDescription: dataValidation.error || 'Invalid data',
       }; 
 
       return {
@@ -53,7 +56,7 @@ export class MeasureService {
     if (meterInThisMonth) {
       const payload = {
         errorCode: ErrorCode.DOUBLE_REPORT,
-        errorDescription: 'Leitura do mês já realizada'
+        errorDescription: 'Leitura do mês já realizada',
       }; 
 
       return {
@@ -87,6 +90,7 @@ export class MeasureService {
       customerId: data.customerCode,
       metering: meteringValue.payload.value,
       meteringType: data.measureType,
+      confirmed: false,
       imageUrl: putImageResponse.payload.url,
       timestamp: data.measureDatetime
     });
@@ -99,5 +103,45 @@ export class MeasureService {
         measureValue: meter.metering
       }
     };
+  }
+
+  public async updateMeterValue(data: UpdateMeterValueBody): Promise<ServiceResponse<UpdateMeterValueSuccess>> {
+    const dataValidation = validateSchema(updateMeterValueSchema, data);
+
+    if (!dataValidation.valid) {
+      const payload = {
+        errorCode: ErrorCode.INVALID_DATA,
+        errorDescription: dataValidation.error || 'Invalid data',
+      }; 
+
+      return {
+        status: HttpStatus.BAD_REQUEST,
+        payload,
+      };
+    }
+
+    const meter = await this.meterModel.findById(data.measureUuid);
+
+    if (!meter) {
+      const payload = {
+        errorCode: ErrorCode.MEASURE_NOT_FOUND,
+        errorDescription: 'Leitura não encontrada',
+      };
+
+      return { status: HttpStatus.NOT_FOUND, payload };
+    }
+
+    if (meter.confirmed) {
+      const payload = {
+        errorCode: ErrorCode.CONFIRMATION_DUPLICATE,
+        errorDescription: 'Leitura já confirmada',
+      };
+
+      return { status: HttpStatus.CONFLICT, payload };
+    }
+
+    await this.meterModel.updateMeterValue(data.measureUuid, data.confirmedValue);
+
+    return { status: HttpStatus.SUCCESS, payload: { success: true } };
   }
 }
