@@ -4,7 +4,7 @@ import { BucketConfig } from './config/BucketConfig';
 const PORT = process.env.APP_PORT || 3001;
 
 const bucketConfig = new BucketConfig();
-bucketConfig.config();
+await bucketConfig.config();
 
 const app = new App(bucketConfig);
 
