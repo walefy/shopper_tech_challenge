@@ -20,7 +20,7 @@ Após setar essa variável basta rodar o comando:
 docker compose up -d
 ```
 
-a api estará disponível na porta ```3001```.
+a api estará disponível na porta ```80``` e também na ```3001```. Escolha a que preferir utilizar.
 
 ## Executando os testes
 
