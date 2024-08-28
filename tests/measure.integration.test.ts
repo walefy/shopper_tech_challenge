@@ -45,8 +45,6 @@ describe('Integration test from Measure', () => {
     .send(data)
     .set('Accept', 'application/json');
 
-    console.log(response.body);
-
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('image_url');
     expect(response.body.image_url).toBe('http://test.com');
@@ -54,5 +52,33 @@ describe('Integration test from Measure', () => {
     expect(response.body.measure_uuid).toBeTypeOf('string');
     expect(response.body).toHaveProperty('measure_value');
     expect(response.body.measure_value).toBe(25);
+  });
+
+  test('Test if /upload returns conflict when send the same measure two times', async () => {
+    stubImageInterpret({ ok: true, payload: { value: 25 } });
+    stubImageUpload();
+
+    const data = {
+      image: '',
+      customer_code: '2',
+      measure_type: 'GAS',
+      measure_datetime: new Date(),
+    };
+
+    await request(app)
+    .post('/upload')
+    .send(data)
+    .set('Accept', 'application/json');
+
+    const response = await request(app)
+    .post('/upload')
+    .send(data)
+    .set('Accept', 'application/json');
+
+    expect(response.status).toBe(409);
+    expect(response.body).toHaveProperty('error_code');
+    expect(response.body).toHaveProperty('error_description');
+    expect(response.body.error_code).toBe('DOUBLE_REPORT');
+    expect(response.body.error_description).toBe('Leitura do mês já realizada');
   });
 });
