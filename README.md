@@ -30,7 +30,15 @@ Para executar os testes o banco de dados precisa estar funcionando pois os teste
 docker compose up database -d
 ```
 
-Após isso basta executar os testes com o Bun, rodando o seguinte comando:
+Após isso basta executar os testes com o Bun, rodando os seguintes comandos:
+
+Para instalar as dependências:
+
+```bash
+bun install
+```
+
+Para rodar os testes localmente:
 
 ```bash
 bun run test:local
